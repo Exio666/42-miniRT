@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 17:59:43 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/16 16:56:44 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/17 18:19:45 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <math.h>
 #include <stdio.h>
 
-bool	intersect_sphere(t_object *obj, t_ray *ray)
+bool	intersect_sphere(t_object *obj, t_ray *ray, t_rayhit *rayhit)
 {
 	t_3dpoint	p;
 	double		solution[2];
@@ -30,14 +30,18 @@ bool	intersect_sphere(t_object *obj, t_ray *ray)
 	if (eq_xy[1] < obj->p.sphere.radius)
 	{
 		solution[0] = t - eq_xy[0];
-		solution[1] = t + eq_xy[1];
-		obj->rayhit.t = solution[0];
-		obj->rayhit.intersect_p = vec_add(ray->org, vec_mul_scalar(ray->dir,
-					solution[0]));
-		obj->rayhit.normal = vec_normalize(vec_sub(obj->rayhit.intersect_p,
+		solution[1] = t + eq_xy[0];
+		if (solution[1] < 0)
+			return (false);
+		if (solution[0] > 0)
+			rayhit->t = solution[0];
+		else
+			rayhit->t = solution[1];
+		rayhit->intersect_p = vec_add(ray->org, vec_mul_scalar(ray->dir,
+					rayhit->t));
+		rayhit->normal = vec_normalize(vec_sub(rayhit->intersect_p,
 					obj->p.sphere.center)); 
 		return (true);
 	}
-	else
-		return (false);
+	return (false);
 }

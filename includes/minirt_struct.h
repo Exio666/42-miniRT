@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/16 17:38:00 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/17 18:19:46 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ typedef struct e_plan
 
 typedef struct e_object	t_object;
 
-typedef bool (*t_intersect_fnct)(t_object *, t_ray *);
+typedef bool (*t_intersect_fnct)(t_object *, t_ray *, t_rayhit *rayhit);
 
 struct e_object
 {
@@ -118,7 +118,6 @@ struct e_object
 		t_plan		plan;
 	} p;
 	t_albedo			albedo;
-	t_rayhit			rayhit;
 	t_object_type		type;
 	t_intersect_fnct	fnct;
 };
