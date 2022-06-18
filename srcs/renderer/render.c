@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:52:40 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 00:29:46 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 04:48:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,21 +82,27 @@ bool	is_a_shadow(t_scene *scene, t_object *primary_obj, t_rayhit const *primary_
 	return (false);
 }
 
+t_vec	vec_mul(t_vec a, t_vec b)
+{
+	return (vec(a.x * b.x, a.y * b.y, a.z * b.z));
+}
+
+# define L 5e3
+
 t_color	compute_light(t_scene *scene, t_object *obj, t_rayhit const *rayhit)
 {
 	t_color	color = {0};
 	double	dot_normal_light;
 	t_vec3d	normal_to_light;
 
-	color = vec(10, 10, 10);
+	color = vec_mul_scalar(vec(1, 1., 1.), 0.2); // Ambiant coefficient
 	if (is_a_shadow(scene, obj, rayhit) == true)
-		return (color);
+		return (vec(0, 0, 0));
 	normal_to_light = vec_sub(scene->light.point, rayhit->intersect_p);
 	dot_normal_light = max(0, vec_dot(vec_normalize(normal_to_light),
 			rayhit->normal));
-	color = vec_add(color, vec_mul_scalar(obj->albedo,
-			2.8e5 * scene->light.ratio * dot_normal_light / vec_lenght_p(normal_to_light)));
-	//color = vec(obj->albedo.x * 255,obj->albedo.y * 255,obj->albedo.z * 255);
+	color = vec_add(color, vec_mul_scalar(obj->albedo, L * dot_normal_light / vec_lenght_p(normal_to_light)));
+	color = vec_mul(color, vec_mul_scalar(vec(0.8, 0.8, 0.8), scene->light.ratio));
 	return (color);
 }
 
@@ -104,9 +110,9 @@ uint32_t	get_color(t_color color)
 {
 	unsigned char r, g, b;
 
-	r = min(255., color.x);
-	g = min(255., color.y);
-	b = min(255., color.z);
+	r = min(255., color.x * 255.99);
+	g = min(255., color.y * 255.99);
+	b = min(255., color.z * 255.99);
 	return (r << 16 | g << 8 | b);
 }
 
@@ -123,7 +129,7 @@ void	render_img(t_minirt *minirt)
 	/* Ici on definie tout nos objects pour debug. */
 
 	add_obj_to_scene(&minirt->scene, new_sphere(
-				vec(0, 4, -30),
+				vec(-10, 4, -80),
 				5.0,
 				0xff0000));
 	add_obj_to_scene(&minirt->scene, new_sphere(
@@ -131,22 +137,36 @@ void	render_img(t_minirt *minirt)
 				5.0,
 				0x00FF00));
 	add_obj_to_scene(&minirt->scene, new_sphere(
-				vec(-5, 20, -35),
-				8.0,
-				0x0000FF));
+				vec(-5, 20, -135),
+				14.0,
+				0x00ffFF));
 
 	// le sol
 
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(0, -1, 0),
 				vec(0, 1, 0),
+				0xffffff));
+
+	add_obj_to_scene(&minirt->scene, new_plan(
+				vec(50, 0, 0),
+				vec(-1, 0, -0.2),
+				0x00ff00));
+	add_obj_to_scene(&minirt->scene, new_plan(
+				vec(-50, 0, 0),
+				vec(1, 0, -0.2),
+				0xff0000));
+
+	add_obj_to_scene(&minirt->scene, new_plan(
+				vec(0, 0, -300),
+				vec(0, 0, 1),
 				0xbfbfe0));
 
 	/* Pour l'instant, l'unique lumiere */
 
 	set_scene_light(&minirt->scene,
-				vec(0, 30, -10),
-				0.6);
+				vec(0, 60, -80),
+				0.5);
 
 
 	viewport_point.z = - (WIDTH / (2 * tan(FOV / 2)));
