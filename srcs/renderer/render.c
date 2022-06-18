@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:52:40 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:42:25 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 07:27:21 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,26 +88,34 @@ t_vec	vec_mul(t_vec a, t_vec b)
 
 # define L 5e3
 
-t_color	compute_light(t_scene *scene, t_object *obj, t_rayhit const *rayhit)
+double	compute_light(t_scene *scene, t_ray *ray, t_rayhit const *rayhit)
 {
-	t_color	color = {0};
-	double	dot_normal_light;
-	t_vec3d	normal_to_light;
+	double	light_intensity;
+	t_vec3d	n_to_l;
+	t_vec3d	l_reflected;
+	t_vec3d	n_to_eye;
+	double	n_dot_l;
+	double	r_dot_l;
 
-	color = vec_mul_scalar(vec(1, 1., 1.), 0.3); // Ambiant coefficient
+	light_intensity = 0.2;
+	n_to_eye = vec_normalize(vec_sub(ray->org, rayhit->intersect_p));
 	for (t_list *elem = scene->light; elem; elem = elem->next)
 	{
 		t_light	*light = elem->content;
 
-		if (is_a_shadow(scene, light, rayhit) == true)
+		if (is_a_shadow(scene, light, rayhit))
 			continue ;
-		normal_to_light = vec_sub(light->pos, rayhit->intersect_p);
-		dot_normal_light = max(0, vec_dot(vec_normalize(normal_to_light),
-				rayhit->normal));
-		color = vec_add(color, vec_mul_scalar(obj->albedo, L * dot_normal_light / vec_lenght_p(normal_to_light)));
-		color = vec_mul(color, vec_mul_scalar(light->albedo, light->ratio));
+		n_to_l = vec_normalize(vec_sub(light->pos, rayhit->intersect_p));
+		n_dot_l = vec_dot(n_to_l, rayhit->normal);
+		if (n_dot_l > 0)
+			light_intensity += 1.5e3 * light->ratio * n_dot_l / vec_lenght_p(vec_sub(light->pos, rayhit->intersect_p));
+
+		l_reflected = vec_sub(vec_mul_scalar(vec_mul_scalar(rayhit->normal, 2.), vec_dot(rayhit->normal, n_to_l)), n_to_l);
+		r_dot_l = vec_dot(l_reflected, n_to_eye);
+		if (r_dot_l > 0)
+			light_intensity += light->ratio * pow(r_dot_l / vec_length(l_reflected) *vec_length(n_to_eye), 500);
 	}
-	return (color);
+	return (light_intensity);
 }
 
 uint32_t	get_color(t_color color)
@@ -132,17 +140,9 @@ void	render_img(t_minirt *minirt)
 
 	/* Ici on definie tout nos objects pour debug. */
 
-	add_obj_to_scene(&minirt->scene, new_sphere(
-				vec(-10, 10, -80),
-				7.0,
-				0xff0000));
-	add_obj_to_scene(&minirt->scene, new_sphere(
-				vec(11, 4, -40),
-				5.0,
-				0x00FF00));
 				
 	add_obj_to_scene(&minirt->scene, new_sphere(
-				vec(-5, 20, -135),
+				vec(0, 20, -75),
 				14.0,
 				0x00ffFF));
 
@@ -175,17 +175,13 @@ void	render_img(t_minirt *minirt)
 	/* Pour l'instant, l'unique lumiere */
 
 	add_light_to_scene(&minirt->scene,
-			vec(0, 30, -20),
+			vec(0, 60, -40),
 			0xffffff,
-			0.3);
+			0.9);
 	add_light_to_scene(&minirt->scene,
-			vec(0, 60, -220),
+			vec(0, 60, -140),
 			0xffffff,
-			1.0);
-	add_light_to_scene(&minirt->scene,
-			vec(0, 60, -120),
-			0xffffff,
-			0.3);
+			0.9);
 
 
 	viewport_point.z = - (WIDTH / (2 * tan(FOV / 2)));
@@ -201,7 +197,9 @@ void	render_img(t_minirt *minirt)
 			obj = ray_intersect_scene_objs(&minirt->scene, &ray, &rayhit);
 			if (obj)
 			{
-				t_color color = compute_light(&minirt->scene, obj, &rayhit);
+				t_color	color;
+
+				color = vec_mul_scalar(obj->albedo, compute_light(&minirt->scene, &ray, &rayhit));
 				//if (color.x != 0 || color.y != 0 || color.z != 0)
 					//vec_print(color);
 				mlx_pixel_img_put(minirt, j, i, get_color(color));
