@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/17 18:19:46 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 05:05:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,16 @@ typedef struct s_mlx
 
 typedef struct e_light
 {
-	t_3dpoint	point;
+	t_3dpoint	pos;
 	double		ratio;
+	t_color		albedo;
 }	t_light;
 
 
 typedef struct e_scene
 {
 	t_list	*objs;
-	t_light	light;
+	t_list	*light;
 }				t_scene;
 
 typedef struct s_minirt
