@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 12:57:13 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 14:19:58 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@
 
 typedef enum e_object_type
 {
-	T_SPHERE,
-	T_PLAN
+	O_SPHERE,
+	O_PLAN,
+	O_CONE,
+	O_CYLINDER
 }			t_object_type;
 
 /* Math related structure */
@@ -64,11 +66,17 @@ typedef struct e_light
 	t_color		albedo;
 }	t_light;
 
+typedef struct e_camera
+{
+
+}				t_camera;
 
 typedef struct e_scene
 {
-	t_list	*objs;
-	t_list	*light;
+	t_list		*objs;
+	t_list		*light;
+	t_light		ambiant_light;
+	t_camera	camera;
 }				t_scene;
 
 typedef struct s_minirt
