@@ -6,7 +6,7 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:32:57 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:21:28 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 12:45:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,34 @@ t_list	*add_light_to_scene(t_scene *scene, t_3dpoint point, uint32_t color,
 	}
 	ft_lstadd_back(&scene->light, elem);
 	return (elem);
+}
+
+/* If the spectified ray hit an object in the specified scene, return the first
+ * object hitted and fill the rayhit structure. */
+
+t_object	*ray_intersect_scene_objs(t_scene *scene, t_ray *ray,
+		t_rayhit *rayhit)
+{
+	t_list		*elem;
+	t_object	*obj;
+	t_object	*closest_obj;
+	t_rayhit	closest_rayhit;
+
+	elem = scene->objs;
+	closest_obj = NULL;
+	while (elem)
+	{
+		obj = elem->content;
+		if (obj->fnct(obj, ray, rayhit))
+		{
+			if (!closest_obj || rayhit->t < closest_rayhit.t)
+			{
+				closest_rayhit = *rayhit;
+				closest_obj = obj;
+			}
+		}
+		elem = elem->next;
+	}
+	*rayhit = closest_rayhit;
+	return (closest_obj);
 }

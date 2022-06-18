@@ -6,7 +6,7 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:47:41 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:10:22 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 12:45:35 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,7 @@ t_object	*new_plan(t_3dpoint point, t_vec3d normal, uint32_t color);
 t_list		*add_obj_to_scene(t_scene *scene, t_object *obj);
 t_list	*add_light_to_scene(t_scene *scene, t_3dpoint point, uint32_t color,
 		double ratio);
+t_object	*ray_intersect_scene_objs(t_scene *scene, t_ray *ray,
+		t_rayhit *rayhit);
 
 #endif

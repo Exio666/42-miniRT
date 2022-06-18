@@ -6,7 +6,7 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:43:00 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:21:06 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 07:47:53 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,6 @@ t_object	*new_plan(t_3dpoint point, t_vec3d normal, uint32_t color)
 	r = color >> 16;
 	g = color >> 8;
 	b = color & 0xFF;
-	obj->albedo = vec_normalize(vec(r / 255., g / 255., b / 255.));
+	obj->albedo = vec(r / 255., g / 255., b / 255.);
 	return (obj);
 }
