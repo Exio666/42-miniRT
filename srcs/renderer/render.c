@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:52:40 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:31:12 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/18 05:42:25 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ t_color	compute_light(t_scene *scene, t_object *obj, t_rayhit const *rayhit)
 		t_light	*light = elem->content;
 
 		if (is_a_shadow(scene, light, rayhit) == true)
-			return (vec(0, 0, 0));
+			continue ;
 		normal_to_light = vec_sub(light->pos, rayhit->intersect_p);
 		dot_normal_light = max(0, vec_dot(vec_normalize(normal_to_light),
 				rayhit->normal));
@@ -132,7 +132,7 @@ void	render_img(t_minirt *minirt)
 
 	/* Ici on definie tout nos objects pour debug. */
 
-	/*add_obj_to_scene(&minirt->scene, new_sphere(
+	add_obj_to_scene(&minirt->scene, new_sphere(
 				vec(-10, 10, -80),
 				7.0,
 				0xff0000));
@@ -140,10 +140,11 @@ void	render_img(t_minirt *minirt)
 				vec(11, 4, -40),
 				5.0,
 				0x00FF00));
+				
 	add_obj_to_scene(&minirt->scene, new_sphere(
 				vec(-5, 20, -135),
 				14.0,
-				0x00ffFF));*/
+				0x00ffFF));
 
 	// le sol
 
