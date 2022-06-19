@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:05:59 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/19 17:44:17 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ typedef struct e_scene
 {
 	t_list	*objs;
 	t_list	*light;
+	t_light	ambiant;
 }				t_scene;
 
 typedef struct s_minirt
@@ -94,6 +95,11 @@ typedef struct s_rayhit
 }	t_rayhit;
 
 /* Primitive geometry structure */
+
+typedef struct	e_material
+{
+	
+}				t_material;
 
 typedef struct e_sphere
 {
