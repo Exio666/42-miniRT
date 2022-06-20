@@ -6,19 +6,21 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:43:00 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/18 05:21:06 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 17:18:17 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt_struct.h"
 #include "ray_intersection.h"
 #include "vector.h"
+#include "mlx.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 t_object	*new_sphere(t_3dpoint center, double radius, uint32_t color)
 {
 	t_object	*obj;
+	t_texture	texture;
 	unsigned char r, g, b;
 
 	obj = malloc(sizeof(t_object));

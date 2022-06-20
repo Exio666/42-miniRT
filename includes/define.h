@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 11:10:25 by bsavinel          #+#    #+#             */
-/*   Updated: 2022/06/20 02:09:48 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 17:41:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@
  *	Define windows
  */
 
-# define HEIGHT 500 
-# define WIDTH 500
+# define HEIGHT 1000
+# define WIDTH 1000
 
 /*
  *	Temporary define
  */
 
-# define FOV_ANGLE 80.0
+# define FOV_ANGLE 70.0
 # define FOV       (FOV_ANGLE * M_PI) / 180
 
 /*

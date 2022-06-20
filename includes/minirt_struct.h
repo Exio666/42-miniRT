@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/19 17:44:17 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 17:42:50 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,14 @@ typedef struct e_light
 }	t_light;
 
 
+typedef struct e_texture
+{
+	char	*path;
+	int		width;
+	int		height;
+	t_image	img;
+}				t_texture;
+
 typedef struct e_scene
 {
 	t_list	*objs;
@@ -92,6 +100,7 @@ typedef struct s_rayhit
 	t_3dpoint	intersect_p;
 	t_vec3d		normal;
 	uint32_t	pixel_color;
+	t_2dpoint	uv;
 }	t_rayhit;
 
 /* Primitive geometry structure */
@@ -125,6 +134,7 @@ struct e_object
 		t_plan		plan;
 	} p;
 	t_albedo			albedo;
+	t_texture			texture;
 	t_object_type		type;
 	t_intersect_fnct	fnct;
 };

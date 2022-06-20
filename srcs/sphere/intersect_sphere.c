@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 17:59:43 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/17 18:19:45 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 18:33:33 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "vector.h"
 #include <math.h>
 #include <stdio.h>
+
+
 
 bool	intersect_sphere(t_object *obj, t_ray *ray, t_rayhit *rayhit)
 {
