@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:46:37 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/20 17:42:50 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 21:28:20 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ typedef struct s_mlx
 typedef struct e_light
 {
 	t_3dpoint	pos;
-	double		ratio;
-	t_color		albedo;
+	double		intensity;
+	t_color		color;
 }	t_light;
 
 
@@ -99,7 +99,6 @@ typedef struct s_rayhit
 	double		t;
 	t_3dpoint	intersect_p;
 	t_vec3d		normal;
-	uint32_t	pixel_color;
 	t_2dpoint	uv;
 }	t_rayhit;
 
@@ -133,6 +132,7 @@ struct e_object
 		t_sphere	sphere;
 		t_plan		plan;
 	} p;
+	bool				textured;
 	t_albedo			albedo;
 	t_texture			texture;
 	t_object_type		type;

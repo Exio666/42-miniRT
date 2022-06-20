@@ -6,7 +6,7 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 15:45:30 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/17 18:19:43 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 21:28:17 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ t_vec	vec_add(t_vec a, t_vec b)
 	return (vec(a.x + b.x, a.y + b.y, a.z + b.z));
 }
 
+void	vec_add_p(t_vec *a, t_vec b)
+{
+	a->x += b.x;
+	a->y += b.y;
+	a->z += b.z;
+}
+
 t_vec	vec_sub(t_vec a, t_vec b)
 {
 	return (vec(a.x - b.x, a.y - b.y, a.z - b.z));
@@ -47,6 +54,13 @@ double	vec_dot(t_vec a, t_vec b)
 t_vec	vec_mul_scalar(t_vec a, double scalar)
 {
 	return (vec(a.x * scalar, a.y * scalar, a.z * scalar));
+}
+
+void	vec_mul_scalar_p(t_vec *a, double scalar)
+{
+	a->x *= scalar;
+	a->y *= scalar;
+	a->z *= scalar;
 }
 
 double	vec_length(t_vec a)
@@ -72,7 +86,7 @@ t_vec	vec_normalize(t_vec a)
 	return (vec(a.x * lenght, a.y * lenght, a.z * lenght));
 }
 
-double	vec_lenght_p(t_vec a)
+double	vec_length_square(t_vec a)
 {
 	return (a.x * a.x + a.y * a.y + a.z * a.z);
 }

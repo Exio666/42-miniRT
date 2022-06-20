@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:52:40 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/20 18:53:32 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 21:28:17 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #define SAMPLE_PPX 3 
 
 static void	generate_ray(t_ray *ray, t_3dpoint viewport_point)
@@ -35,15 +34,17 @@ bool	is_a_shadow(t_scene *scene, t_light *light, t_rayhit const *primary_rayhit)
 	t_ray		ray;
 	t_rayhit	rayhit;
 	t_object	*obj;
+	t_vec3d		intersect_to_light
 	double		distance_to_light;
 
-	ray.org = vec_add(primary_rayhit->intersect_p, vec_mul_scalar(primary_rayhit->normal, 1e-7));
+	ray.org = vec_add(primary_rayhit->intersect_p,
+			vec_mul_scalar(primary_rayhit->normal, 1e-7));
 	ray.dir = vec_normalize(vec_sub(light->pos,
-												primary_rayhit->intersect_p));
+			primary_rayhit->intersect_p));
 	obj = ray_intersect_scene_objs(scene, &ray, &rayhit);
 	if (obj)
 	{
-		distance_to_light = vec_length(
+		distance_to_light = vec_length_square(
 				vec_sub(light->pos, primary_rayhit->intersect_p));
 		if (rayhit.t < distance_to_light)
 			return (true);
@@ -100,8 +101,37 @@ t_2dpoint	get_uv_sphere(t_vec3d p)
 	return (vec(asin(p.x) / M_PI + 0.5, asin(p.y) / M_PI + 0.5, 0.));
 }
 
+static inline double	get_lambertian_factor(t_light *light, t_vec3d normal,
+		t_vec3d inter_to_light)
+{
+	double	factor;
+	double	dot_normal_inter_light;
 
-t_texture	texture;
+	dot_normal_inter_light = max(0, vec_dot(vec_normalize(inter_to_light),
+		normal));
+	factor = 6e2 * dot_normal_inter_light / vec_lenght_p(inter_to_light)
+		* light->intensity;
+	return (factor);
+}
+
+static inline double	get_specular_factor(t_light *light,
+		t_vec3d reflect_vec, t_vec3d eye_vec)
+{
+	double	factor;
+	double	dot_reflect_eye;
+
+	dot_reflect_eye = max(0, vec_dot(reflect_vec, eye_vec));
+	factor = pow(dot_reflect_eye,
+}
+
+static inline	apply_factor(t_light *light, t_color *final_color,
+	double (*f)(t_light *, t_rayhit *, t_ray, t_vec3d))
+{
+	double	computed_factor;
+
+
+	vec_add_p(final_color, vec_mul_scalar(light->color, factor);
+}
 
 t_color	compute_light(t_scene *scene, t_ray *ray, t_rayhit const *rayhit, t_object *obj)
 {
@@ -115,16 +145,24 @@ t_color	compute_light(t_scene *scene, t_ray *ray, t_rayhit const *rayhit, t_obje
 	double	dot_reflect_eye;
 	double	dot_normal_inter_light;
 
-	color = vec_mul_scalar(scene->ambiant.albedo, scene->ambiant.ratio);
+	color = vec_mul_scalar(scene->ambiant.color, scene->ambiant.intensity);
 	for (t_list *elem = scene->light; elem; elem = elem->next)
 	{
 		t_light *light = elem->content;
 		if (!is_a_shadow(scene, light, rayhit))
 		{
 			intersect_to_light = vec_sub(light->pos, rayhit->intersect_p);
+			vec_add_p(&color, get_lambertian_factor(light, rayhit->normal,
+						inter_to_light));
+
 			dot_normal_inter_light = max(0, vec_dot(vec_normalize(intersect_to_light), rayhit->normal)); 
 			intensity = 6e2 * dot_normal_inter_light / vec_lenght_p(intersect_to_light) * light->ratio;
+
 			color = vec_add(color, vec_mul_scalar(light->albedo, intensity));
+
+			vec_add_p(color, get_specular_factor(light,
+					get_reflect_vec(intersect_to_light, eye_vec),
+					vec_normalize(vec_sub(ray->org, rayhit->intersect_p)));
 
 			eye_vec = vec_normalize(vec_sub(ray->org, rayhit->intersect_p));
 			reflect_vec = get_reflect_vec(intersect_to_light, rayhit->normal);
@@ -194,18 +232,9 @@ void	render_img(t_minirt *minirt)
 	size_t		j;
 
 
-	minirt->scene.ambiant.albedo = vec(1,1, 1);
-	minirt->scene.ambiant.ratio = 0.4;
 	/* Ici on definie tout nos objects pour debug. */
 
-
-	texture.img.img = mlx_xpm_file_to_image(minirt->mlx.ptr, "earth.xpm", &texture.width, &texture.height);
-
-	if (texture.img.img)
-	{
-		printf("Loaded texture: %d x %d\n", texture.width, texture.height);
-		texture.img.addr = mlx_get_data_addr(texture.img.img, &texture.img.bits_per_pixel, &texture.img.line_length, &texture.img.endian);
-	}
+	set_scene_ambiant_light(&minirt->scene, 0xffffff, 0.2);
 
 	add_obj_to_scene(&minirt->scene, new_sphere(
 				vec(0, 14, -60),
@@ -213,7 +242,7 @@ void	render_img(t_minirt *minirt)
 				0xffffff));
 	add_obj_to_scene(&minirt->scene, new_sphere(
 				vec(10, 6, -42),
-				7.0,
+				3.0,
 				0xffffff));
 	/*add_obj_to_scene(&minirt->scene, new_sphere(
 				vec(-10, 4, -30),
@@ -230,7 +259,7 @@ void	render_img(t_minirt *minirt)
 				vec(0, -1, 0),
 				vec(0, 1, 0),
 				0xff0000));
-/*
+
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(50, 0, 0),
 				vec(-1, 0, -0.2),
@@ -249,13 +278,13 @@ void	render_img(t_minirt *minirt)
 				vec(0, 110, 0),
 				vec(0, -1, 0),
 				0xff00ff));
-*/
+
 	/* Pour l'instant, l'unique lumiere */
 
 	add_light_to_scene(&minirt->scene,
 			vec(0, 30, -40),
 			0xffffff,
-			0.2);
+			1);
 
 
 	

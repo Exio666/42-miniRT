@@ -6,7 +6,7 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:43:00 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/20 17:18:17 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 20:22:18 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,13 @@
 #include "ray_intersection.h"
 #include "vector.h"
 #include "mlx.h"
+#include "mlx_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 t_object	*new_sphere(t_3dpoint center, double radius, uint32_t color)
 {
 	t_object	*obj;
-	t_texture	texture;
-	unsigned char r, g, b;
 
 	obj = malloc(sizeof(t_object));
 	if (!obj)
@@ -30,17 +29,13 @@ t_object	*new_sphere(t_3dpoint center, double radius, uint32_t color)
 	obj->p.sphere.radius = radius;
 	obj->fnct = &intersect_sphere;
 	obj->type = T_SPHERE;
-	r = color >> 16;
-	g = color >> 8;
-	b = color & 0xFF;
-	obj->albedo = vec(r / 255., g / 255., b / 255.);
+	obj->albedo = get_normalized_color(color);
 	return (obj);
 }
 
 t_object	*new_plan(t_3dpoint point, t_vec3d normal, uint32_t color)
 {
 	t_object	*obj;
-	unsigned char r, g, b;
 
 	obj = malloc(sizeof(t_object));
 	if (!obj)
@@ -49,9 +44,6 @@ t_object	*new_plan(t_3dpoint point, t_vec3d normal, uint32_t color)
 	obj->p.plan.normal = normal;
 	obj->fnct = &plane_intersection;
 	obj->type = T_PLAN;
-	r = color >> 16;
-	g = color >> 8;
-	b = color & 0xFF;
-	obj->albedo = vec_normalize(vec(r / 255., g / 255., b / 255.));
+	obj->albedo = get_normalized_color(color);
 	return (obj);
 }

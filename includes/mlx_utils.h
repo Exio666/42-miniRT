@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 13:11:59 by bsavinel          #+#    #+#             */
-/*   Updated: 2022/06/15 14:39:20 by bsavinel         ###   ########.fr       */
+/*   Updated: 2022/06/20 20:19:23 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void			launch_loop(t_minirt *backpack);
  */
 
 unsigned int	set_color(unsigned char r, unsigned char g, unsigned char b);
+t_color			get_normalized_color(uint32_t color);
 void			mlx_pixel_img_put(t_minirt *minirt, int x, int y, int color);
 
 #endif

@@ -6,15 +6,16 @@
 /*   By: plouvel <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:32:57 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/20 17:16:49 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 21:28:18 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt_struct.h"
+#include "mlx_utils.h"
 #include "vector.h"
 #include <stdlib.h>
 
-t_list	*add_obj_to_scene(t_scene *scene, t_object *obj)
+t_object	*add_obj_to_scene(t_scene *scene, t_object *obj)
 {
 	t_list	*elem;
 
@@ -22,25 +23,21 @@ t_list	*add_obj_to_scene(t_scene *scene, t_object *obj)
 	if (!elem)
 		return (NULL);
 	ft_lstadd_back(&scene->objs, elem);
-	return (elem);
+	return (elem->content);
 }
 
 t_list	*add_light_to_scene(t_scene *scene, t_3dpoint point, uint32_t color,
-		double ratio)
+		double intensity)
 {
 	t_list	*elem;
 	t_light	*light;
-	unsigned char r, g, b;
 
 	light = malloc(sizeof(t_light));
 	if (!light)
 		return (NULL);
 	light->pos = point;
-	r = color >> 16;
-	g = color >> 8;
-	b = color & 0xFF;
-	light->albedo = vec(r / 255., g / 255., b / 255.);
-	light->ratio = ratio;
+	light->color = get_normalized_color(color);
+	light->intensity = intensity;
 	elem = ft_lstnew(light);
 	if (!elem)
 	{
@@ -49,6 +46,13 @@ t_list	*add_light_to_scene(t_scene *scene, t_3dpoint point, uint32_t color,
 	}
 	ft_lstadd_back(&scene->light, elem);
 	return (elem);
+}
+
+void	set_scene_ambiant_light(t_scene *scene, uint32_t color,
+		double intensity)
+{
+	scene->ambiant.color = get_normalized_color(color);
+	scene->ambiant.intensity = intensity;
 }
 
 /* If the spectified ray hit an object in the specified scene, return the first
