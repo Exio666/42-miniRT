@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:52:40 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/20 01:16:15 by plouvel          ###   ########.fr       */
+/*   Updated: 2022/06/20 02:16:52 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SAMPLE_PPX 100
+#define SAMPLE_PPX 10
 
 static void	generate_ray(t_ray *ray, t_3dpoint viewport_point)
 {
@@ -93,12 +93,28 @@ t_vec	vec_add_scalar(t_vec a, double d)
 
 # define L 5e3
 
+t_vec3d	get_reflect_vec(t_vec3d incident, t_vec3d normal)
+{
+	t_vec3d	reflect_vec;
+	double	dot_incident_normal;
+	
+	incident = vec_normalize(vec_mul_scalar(incident, 1));
+	dot_incident_normal = vec_dot(incident, normal);
+	reflect_vec = vec_sub(vec_mul_scalar(vec_mul_scalar(normal, 2.), dot_incident_normal), incident);
+	
+	return (reflect_vec);
+}
+
 t_color	compute_light(t_scene *scene, t_ray *ray, t_rayhit const *rayhit, t_object *obj)
 {
 
 	t_color	color = {0};
 	double	intensity;
 	t_vec3d	intersect_to_light;
+	t_vec3d	reflect_vec;
+	t_vec	eye_vec;
+	double	factor;
+	double	dot_reflect_eye;
 	double	dot_normal_inter_light;
 
 	color = vec_mul_scalar(scene->ambiant.albedo, scene->ambiant.ratio);
@@ -111,6 +127,12 @@ t_color	compute_light(t_scene *scene, t_ray *ray, t_rayhit const *rayhit, t_obje
 			dot_normal_inter_light = max(0, vec_dot(vec_normalize(intersect_to_light), rayhit->normal)); 
 			intensity = 6e2 * dot_normal_inter_light / vec_lenght_p(intersect_to_light) * light->ratio;
 			color = vec_add(color, vec_mul_scalar(light->albedo, intensity));
+
+			eye_vec = vec_normalize(vec_sub(ray->org, rayhit->intersect_p));
+			reflect_vec = get_reflect_vec(intersect_to_light, rayhit->normal);
+			dot_reflect_eye = max(0, vec_dot(reflect_vec, eye_vec));
+			factor = pow(dot_reflect_eye, 80);
+			color = vec_add(color, vec_mul_scalar(light->albedo, factor));
 		}
 	}
 	color = vec_mul(color, obj->albedo);
@@ -141,10 +163,18 @@ uint32_t	get_color(t_color color)
 {
 	unsigned char r, g, b;
 
-	r = min(255., color.x * 255.99);
-	g = min(255., color.y * 255.99);
-	b = min(255., color.z* 255.99);
+	double	inv = 1. / SAMPLE_PPX;
+
+	color = vec_mul_scalar(color, inv);
+	r = min(255., min(1, color.x) * 255.99);
+	g = min(255., min(1, color.y) * 255.99);
+	b = min(255., min(1, color.z) * 255.99);
 	return (r << 16 | g << 8 | b);
+}
+
+double	rand_double(void)
+{
+	return (rand() / (RAND_MAX + 1.));
 }
 
 void	render_img(t_minirt *minirt)
@@ -158,7 +188,7 @@ void	render_img(t_minirt *minirt)
 
 
 	minirt->scene.ambiant.albedo = vec(1,1, 1);
-	minirt->scene.ambiant.ratio = 0.2;
+	minirt->scene.ambiant.ratio = 0.1;
 	/* Ici on definie tout nos objects pour debug. */
 
 				
@@ -180,16 +210,16 @@ void	render_img(t_minirt *minirt)
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(0, -1, 0),
 				vec(0, 1, 0),
-				0xffffff));
-
+				0xff0000));
+/*
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(50, 0, 0),
 				vec(-1, 0, -0.2),
-				0xffffff));
+				0x00ff00));
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(-50, 0, 0),
 				vec(1, 0, -0.2),
-				0xffffff));
+				0x0000ff));
 
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(0, 0, -300),
@@ -199,23 +229,14 @@ void	render_img(t_minirt *minirt)
 	add_obj_to_scene(&minirt->scene, new_plan(
 				vec(0, 110, 0),
 				vec(0, -1, 0),
-				0xffffff));
-
+				0xff00ff));
+*/
 	/* Pour l'instant, l'unique lumiere */
 
 	add_light_to_scene(&minirt->scene,
-			vec(-10, 20, -10),
-			0xff0000,
-			1);
-	add_light_to_scene(&minirt->scene,
-			vec(10, 20, -10),
-			0x0000ff,
-			1);
-	add_light_to_scene(&minirt->scene,
-			vec(0, 20, -30),
-			0x00ff00,
-			1);
-
+			vec(0, 20, -10),
+			0xffffff,
+			0.6);
 
 
 	
@@ -227,28 +248,33 @@ void	render_img(t_minirt *minirt)
 		j = 0;
 		while (j < WIDTH)
 		{
-			viewport_point.x = j - (WIDTH / 2.0);
-			viewport_point.y = i - (HEIGHT / 2.0);
-			generate_ray(&ray, viewport_point);
-			obj = ray_intersect_scene_objs(&minirt->scene, &ray, &rayhit);
-			if (obj)
-			{
-				t_color	color;
 
-				color = compute_light(&minirt->scene, &ray, &rayhit, obj);
-				//if (color.x != 0 || color.y != 0 || color.z != 0)
-					//vec_print(color);
-				mlx_pixel_img_put(minirt, j, i, get_color(color));
-			}
-			else
+			t_vec3d color = vec(0, 0, 0);
+			for (int s = 0; s < SAMPLE_PPX; s++)
 			{
-				unsigned char r, g, b;
+				viewport_point.x = (j + rand_double()) - (WIDTH / 2.0);
+				viewport_point.y = (i + rand_double()) - (HEIGHT / 2.0);
+				generate_ray(&ray, viewport_point);
+				obj = ray_intersect_scene_objs(&minirt->scene, &ray, &rayhit);
+				if (obj)
+				{
 
-				r = 16 + (double) (255 - 16) / HEIGHT * i;
-				g = 112 + (double) (255 - 112) / HEIGHT * i;
-				b = 222 + (double) (255 - 222) / HEIGHT * i;
-				mlx_pixel_img_put(minirt, j, i, 0xFF << 24| r << 16 | g << 8 | b);
+					color = vec_add(color, compute_light(&minirt->scene, &ray, &rayhit, obj));
+					//if (color.x != 0 || color.y != 0 || color.z != 0)
+						//vec_print(color);
+				}
+				else
+				{
+					unsigned char r, g, b;
+
+					r = 16 + (double) (255 - 16) / HEIGHT * i;
+					g = 112 + (double) (255 - 112) / HEIGHT * i;
+					b = 222 + (double) (255 - 222) / HEIGHT * i;
+					mlx_pixel_img_put(minirt, j, i, 0xFF << 24| r << 16 | g << 8 | b);
+				}
 			}
+
+			mlx_pixel_img_put(minirt, j, i, get_color(color));
 			j++;
 		}
 		i++;
