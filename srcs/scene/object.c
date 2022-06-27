@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:43:00 by plouvel           #+#    #+#             */
-/*   Updated: 2022/06/25 15:01:39 by bsavinel         ###   ########.fr       */
+/*   Updated: 2022/06/27 15:20:35 by bsavinel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "matrix.h"
 #include "tuple.h"
 #include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
 
 t_object	*new_sphere(t_point3 pos, double radius, uint32_t color)
@@ -69,7 +70,8 @@ t_object	*new_cylindre(t_point3 center, t_vec3 orientation, double rayon, double
 	r = color >> 16;
 	g = color >> 8;
 	b = 0xFF & color;
-	obj->M = matrix4_translate(center.x, center.y, center.z);
+	obj->M = matrix4_mul(matrix4_translate(center.x, center.y, center.z),
+			matrix4_scale(rayon, rayon, rayon)));
 	obj->M_inv = matrix4_inv(obj->M);
 	obj->albedo = get_norm_color(color);
 	return (obj);

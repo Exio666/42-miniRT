@@ -6,7 +6,7 @@
 /*   By: bsavinel <bsavinel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 14:24:21 by bsavinel          #+#    #+#             */
-/*   Updated: 2022/06/25 15:27:41 by bsavinel         ###   ########.fr       */
+/*   Updated: 2022/06/27 15:20:56 by bsavinel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool	give_intersec_normalize_cylinder(double rayon, t_ray *new_ray, double dista
 
 	a = (new_ray->dir.y * new_ray->dir.y) + (new_ray->dir.z * new_ray->dir.z);
 	b = 2 * ((new_ray->dir.y * new_ray->org.y) + (new_ray->dir.z * new_ray->org.z));
-	c = (new_ray->org.y * new_ray->org.y) + (new_ray->org.z * new_ray->org.z) - (rayon * rayon);
+	c = (new_ray->org.y * new_ray->org.y) + (new_ray->org.z * new_ray->org.z) - 1;
 	return (solve_quadratic(a, b, c, distance));
 }
 
@@ -118,8 +118,8 @@ bool	intersect_cylindre(t_object *obj, t_ray *ray, t_rayhit *rayhit)
 	all_inter.first_paille = false;
 	all_inter.second_paille = false;
 	new_ray = ray_transform(*ray, obj->M_inv);
-	up_disk_cylindre(&all_inter, obj, ray);
-	down_disk_cylindre(&all_inter, obj, ray);
+	//up_disk_cylindre(&all_inter, obj, ray);
+	//down_disk_cylindre(&all_inter, obj, ray);
 	intersect_paille_inf(&all_inter, obj, &new_ray);
 	return (select_first_intersect(&all_inter, obj, rayhit));
 }
